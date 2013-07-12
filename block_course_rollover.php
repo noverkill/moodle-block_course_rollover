@@ -105,7 +105,8 @@ class block_course_rollover extends block_base
     {
 	 global $PAGE, $COURSE;
         $return = true;
-        $rangetest = course_rollover::check_in_range($this->config->schedule_day, $this->config->cutoff_day, time());
+		$config = get_config('course_rollover');
+        $rangetest = course_rollover::check_in_range($config->schedule_day, $config->cutoff_day, time());
 		$status =  course_rollover::get_schedule_status($COURSE->id);
 		
 		
@@ -118,6 +119,7 @@ class block_course_rollover extends block_base
                 );
 
         $return = ($this->instance->id == optional_param('blockid', 0, PARAM_INT)) ? false : $return;
+		$return = ((int)$status > 599) ? true : $return;
         return $return;
     }
 
