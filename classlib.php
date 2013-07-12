@@ -353,11 +353,11 @@ class course_rollover
 			//@TODO add a status code to the scheduled course 410 as it has been updated
             $returned['update'] = $DB->update_record(COURSE_ROLLOVER, $savedata);
             $eventdata->action = 'update';
-			add_to_log($savedata->id, "course_rollover",  "update", "/blocks/course_rollover/view.php?id=", $course->savedata ,$USER->id);
+			//add_to_log($savedata->id, "course_rollover",  "update", "/blocks/course_rollover/view.php?id=", $course->savedata ,$USER->id);
         } else {
             $returned['insert'] = $DB->insert_record(COURSE_ROLLOVER, $savedata);
             $eventdata->action = 'schedule';
-			add_to_log($savedata->id, "course_rollover","scheduled", "/blocks/course_rollover/view.php?id=", $course->savedata,$USER->id);
+			//add_to_log($savedata->id, "course_rollover","scheduled", "/blocks/course_rollover/view.php?id=", $course->savedata,$USER->id);
         }
 		$eventdata->schedule = $savedata;
 		try {
