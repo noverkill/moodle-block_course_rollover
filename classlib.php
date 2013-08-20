@@ -236,8 +236,9 @@ class course_rollover
         if ($courseid !== false) {
             $sql .=" WHERE {$config->data_mapping_category} = (SELECT {$config->data_mapping_category} FROM   {$config->db_table} WHERE {$config->data_mapping_course_id} = '$courseid')";
         }
-        $sql .= " AND ({$config->data_mapping_course_id} LIKE '%{$current_year}' OR {$config->data_mapping_course_id} = '$courseid') ORDER BY  {$config->data_mapping_summary} DESC";
-        $rs = $EXTDB->Execute($sql);
+        $sql .= " AND ({$config->data_mapping_course_id} LIKE '%{$current_year}' OR {$config->data_mapping_course_id} = '$courseid') ORDER BY  {$config->data_mapping_shortname} DESC";
+        
+		$rs = $EXTDB->Execute($sql);
 
         if (!$rs) {
             //TODO Add error stuff!
