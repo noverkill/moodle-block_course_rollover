@@ -469,8 +469,8 @@ class course_rollover
         $prmTime['dir'] = $dir;
         $urlTime = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmTime);
 
-        $prmCourse['chr'] = '';        
-        $prmTime['chr'] = '';
+        $prmCourse['chr'] = '&#8597;'; //'&#10702'; //       
+        $prmTime['chr'] =   ' &#8597;'; //'&#10702'; //
 
         switch ($params['ord']) {
             case 'shortname':
@@ -490,7 +490,7 @@ class course_rollover
             '<a href="' .  $urlTime . '">Schedule Time ' . $prmTime['chr'] . '</a>', 
             'Scheduled By');
 
-        $ordersql = sprintf(" ORDER BY cr.%s %s", $params['ord'], $params['dir']);
+        $ordersql = sprintf(" ORDER BY %s %s", $params['ord'], $params['dir']);
         // 21/07/32014 -----------------------------------
 
         $report->table->size = array('40%', '15%', '15%', '15%', '15%');
@@ -501,8 +501,13 @@ class course_rollover
         switch ($type) {
             case 0: // not scheduled
                 $sqlparam = null;
-                $report->table->head = array('Course Title', 'Course Short Code', 'idNumber');
-                $report->table->size = array('60%', '20%', '20%');
+                // Szilard: add column sorting feature for the data table
+                $report->table->head = array(
+                    'Course Title', 
+                    '<a href="' .  $urlCourse . '">Course Short Code ' . $prmCourse['chr'] . '</a>',
+                    'idNumber'
+                );
+                // 21/07/32014 -----------------------------------                $report->table->size = array('60%', '20%', '20%');
                 $report->table->align = array('left', 'left', 'left');
                 $countsql = sprintf($not_scheduled_sql, 'COUNT(c.id) as count');
                 $datasql = sprintf($not_scheduled_sql, 'c.fullname, c.shortname, c.idnumber');
