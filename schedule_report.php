@@ -35,6 +35,14 @@ $params['page'] = optional_param('page', 0, PARAM_INT);
 $params['limit'] = optional_param('limit', 20, PARAM_INT);
 $params['sort'] = optional_param('sort', '', PARAM_ALPHA);
 
+// Szilard: add column sorting feature for the data table
+$params['ord'] = optional_param('ord', '', PARAM_ALPHA);
+$params['dir'] = optional_param('dir', '', PARAM_ALPHA);
+
+if (! in_array($params['ord'], array('shortname','scheduletime'))) $params['ord'] = 'shortname';
+if (! in_array($params['dir'], array('','ASC','DESC'))) $params['dir'] = '';
+// 21/07/32014 -----------------------------------
+
 if (!$course = $DB->get_record("course", array("id" => SITEID))) {
     print_error("invalidcourseid");
 }

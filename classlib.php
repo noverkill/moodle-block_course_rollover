@@ -237,8 +237,7 @@ class course_rollover
             $sql .=" WHERE {$config->data_mapping_category} = (SELECT {$config->data_mapping_category} FROM   {$config->db_table} WHERE {$config->data_mapping_course_id} = '$courseid')";
         }
         $sql .= " AND ({$config->data_mapping_course_id} LIKE '%{$current_year}' OR {$config->data_mapping_course_id} = '$courseid') ORDER BY  {$config->data_mapping_shortname} DESC";
-        
-		$rs = $EXTDB->Execute($sql);
+        $rs = $EXTDB->Execute($sql);
 
         if (!$rs) {
             //TODO Add error stuff!
@@ -456,11 +455,49 @@ class course_rollover
 				c.`category` NOT IN (SELECT id from {course_categories} where parent = 10)';
 
         $report->table = new html_table();
-        $report->table->head = array('Course', 'New Module Code', 'Old Module Code', 'Schedule Time', 'Scheduled By');
+        
+        // Szilard: add column sorting feature for the data table
+        if ($params['dir'] == '' || $params['dir'] == 'ASC') $dir = 'DESC'; else $dir = '';
+
+        $prmCourse = $params;
+        $prmCourse['ord'] = 'shortname';
+        $prmCourse['dir'] = $dir;
+        $urlCourse = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmCourse);        
+
+        $prmTime = $params;
+        $prmTime['ord'] = 'scheduletime';
+        $prmTime['dir'] = $dir;
+        $urlTime = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmTime);
+
+        $prmCourse['chr'] = '';        
+        $prmTime['chr'] = '';
+
+        switch ($params['ord']) {
+            case 'shortname':
+                if ($prmCourse['dir'] == 'DESC') $prmCourse['chr'] = ' &#9650;';
+                else $prmCourse['chr'] = ' &#9660;';
+            break;             
+            case 'scheduletime':
+                if ($prmTime['dir'] == 'DESC') $prmTime['chr'] = ' &#9650;';
+                else $prmTime['chr'] = ' &#9660;';
+            break; 
+        }
+
+        $report->table->head = array(
+            '<a href="' .  $urlCourse . '">Course ' . $prmCourse['chr'] . '</a>',
+            'New Module Code', 
+            'Old Module Code', 
+            '<a href="' .  $urlTime . '">Schedule Time ' . $prmTime['chr'] . '</a>', 
+            'Scheduled By');
+
+        $ordersql = sprintf(" ORDER BY cr.%s %s", $params['ord'], $params['dir']);
+        // 21/07/32014 -----------------------------------
+
         $report->table->size = array('40%', '15%', '15%', '15%', '15%');
         $report->table->align = array('left', 'center', 'center', 'center', 'left');
 
         //$DB->set_debug(true);
+        
         switch ($type) {
             case 0: // not scheduled
                 $sqlparam = null;
@@ -500,7 +537,8 @@ class course_rollover
         }
 
         $report->count = $DB->count_records_sql($countsql, $sqlparam);
-        $result = $DB->get_records_sql($datasql, $sqlparam, $params['page'] * $params['limit'], $params['limit']);
+
+        $result = $DB->get_records_sql($datasql . $ordersql, $sqlparam, $params['page'] * $params['limit'], $params['limit']);
 
         $report->table->attributes['class'] = 'scaletable localscales generaltable';
 		//foreach($result as &$row) {
