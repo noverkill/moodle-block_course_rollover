@@ -629,7 +629,7 @@ class course_rollover
 	    $eventdata->fullmessagehtml = '';
 
 	    $eventdata->smallmessage = get_string('emailconfirmsmall', COURSE_ROLLOVER, $a);
-	    $eventdata->contexturl = new moodle_url('/blocks/course_rollover/view.php', array('id' => $obj->schedule->courseid));
+	    $eventdata->contexturl = (new moodle_url('/blocks/course_rollover/view.php', array('id' => $obj->schedule->courseid)))->out();
 	    $eventdata->contexturlname = $a->coursename;
 		$return  = message_send($eventdata);
 		return $return;
