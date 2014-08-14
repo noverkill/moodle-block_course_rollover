@@ -167,7 +167,7 @@ class block_course_rollover_form extends moodleform
         $errors = parent::validation($data, $files);
         if (array_key_exists('scheduled_date', $data)) {
             if ($data['scheduled_date'] < $this->_customdata['course_rollover_config']->schedule_day) {
-                $errors['scheduled_date'] = get_string('messages_strat_date_error', 'block_course_rollover');
+                $errors['scheduled_date'] = get_string('messages_start_date_error', 'block_course_rollover');
             }
         }
         return $errors;

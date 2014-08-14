@@ -607,13 +607,16 @@ class course_rollover
 	static function notification($obj)
 	{
 		GLOBAL $DB;
+
+        $a = new stdClass();        
 		$a->coursename = $DB->get_field('course', 'fullname', array('id'=> $obj->schedule->courseid), IGNORE_MISSING);
 	    $a->username = fullname($obj->recipient);
 	    $a->userusername = $obj->recipient->username;
 	    $a->idnumber = $obj->schedule->modcode;
-		$a->submitttedtime = $obj->schedule->submitttedtime;
+		$a->submitttedtime = $obj->submitttedtime;
 	    $a->scheduledate = userdate($obj->schedule->scheduletime, '%A, %d %B %Y');
 	    $a->shortname = $obj->schedule->shortname;
+
 	    // Prepare message
 	    $eventdata = new stdClass();
 	    $eventdata->component = COURSE_ROLLOVER;
