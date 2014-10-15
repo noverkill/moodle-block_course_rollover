@@ -1,26 +1,13 @@
 <?php
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-/**
- * this file is use to render the form to a page on moodle
- * @package     rgu_contact_us
- * @subpackage  block
- * @copyright   2012 Gerry Hall gerryghall@googlemail.com
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+/****************************************************************
+
+File:     /block/course_rollover/view.php
+
+Purpose:  To render the form to a page on moodle
+
+****************************************************************/
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 
 global $DB, $CFG, $USER, $COURSE, $OUTPUT, $PAGE, $EXTDB;
@@ -51,8 +38,6 @@ $PAGE->set_course($course);
 //$pagenode->make_active();
 $renderer = $PAGE->get_renderer('block_course_rollover');
 
-
-
 $rollover_form = new block_course_rollover_form(
                 null,
                 array(
@@ -65,7 +50,9 @@ $rollover_form = new block_course_rollover_form(
 );
 
 echo $OUTPUT->header();
+
 $site = get_site();
+
 if ($rollover_form->is_cancelled()) {
     echo 'redirecting...';
     redirect(new moodle_url('/course/view.php', array('id' => $cr->params->id)));
@@ -78,13 +65,15 @@ if ($rollover_form->is_cancelled()) {
     );
     echo $renderer->schedule_footer($data, $cr);
 } else {
-
     // form didn't validate or this is the first display
     echo $OUTPUT->heading(get_string('blocktitle', 'block_course_rollover'));
     echo $OUTPUT->box(get_string('messages_introduction', 'block_course_rollover'));
     $rollover_form->display();
 }
+
 echo $OUTPUT->footer();
+
 //remember to close the extrnal Datbase connection
 $EXTDB->Close();
+
 ?>

@@ -1,33 +1,15 @@
 <?php
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/****************************************************************
 
-/**
- * Settings for Course Template block.
- *
- * @package      blocks
- * @subpackage   course_rollover
- * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+File:       block/course_rollover/settings.php
+
+Purpose:    Global configuration page for the block
+
+****************************************************************/
+
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
-
-
-
-
 
 // Get all calendar days
 $format = get_string('strftimedateshort', 'langconfig');
@@ -55,7 +37,7 @@ $settings->add(new admin_setting_configselect('course_rollover/schedule_day', ge
                 get_string('reset_date_desc', 'block_course_rollover'), $days[mktime(12, 0, 0, 6, 1, date('Y'))], $days));
 $settings->add(new admin_setting_configselect('course_rollover/cutoff_day', get_string('reset_cutoff_day', 'block_course_rollover'),
                 get_string('reset_cutoff_day_desc', 'block_course_rollover'), $days[mktime(12, 0, 0, 9, 1, date('Y'))], $days));
-/* 
+/*
 * this are not currently being used by the plugin
 *
 * $settings->add(new admin_setting_configcheckbox('course_rollover/course_data', get_string('course_data', 'block_course_rollover'),

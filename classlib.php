@@ -1,26 +1,21 @@
 <?php
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/****************************************************************
+
+File:     /block/course_rollover/classlib.php
+
+Purpose:  Class to manage course rollovers
+
+****************************************************************/
 
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
+
 /* * #@+
  * Defaults for the block course rollover
  */
 define('COURSE_ROLLOVER', 'block_course_rollover');
+
 global $DB, $CFG, $EXTDB;
 
 require_once $CFG->libdir . '/adodb/adodb.inc.php';
@@ -28,8 +23,8 @@ require_once $CFG->dirroot . '/course/lib.php';
 
 /**
  *
- * course_rollover is a class to manage course rollovers this class uses various aspects of moodle API including 
- *  update_course reset_course_userdata which are both used to rest moodle courses.   
+ * course_rollover is a class to manage course rollovers this class uses various aspects of moodle API including
+ *  update_course reset_course_userdata which are both used to rest moodle courses.
  *
  * @package    classlib
  * @category   course_rollover
@@ -46,12 +41,12 @@ class course_rollover
 
 	/**
 	 * __construct create a new course_rollover all properties are public in this class the main purpose of this object to
-	 * is to keep all main functions and properties under one roof 
+	 * is to keep all main functions and properties under one roof
 	 *
-	 * @param string $config 
+	 * @param string $config
 	 * @param string $id
 	 * @access public
-	 * @static 
+	 * @static
 	 * @author Gerry G Hall
 	 */
     function __construct($config, $id = 0)
@@ -87,12 +82,12 @@ class course_rollover
 	    }
 	    return $EXTDB;
 	}
-	
+
 
     /**
-     * @static rollover 
+     * @static rollover
      *
-     * @param string $course 
+     * @param string $course
      * @return void
 	 * @access public
 	 * @static
@@ -105,7 +100,7 @@ class course_rollover
         $module = $EXTDB->GetRow("SELECT * FROM {$config->db_table} WHERE {$config->data_mapping_course_id} = '" . $course_to_rollover->modcode . "'");
 		$course_to_rollover->status = 400;
 		$state = true;
-		
+
 		try {
             // we only update courses that are in the MIS dataset
             if ($module) {
@@ -121,15 +116,15 @@ class course_rollover
                     'format' => '1'
                 );
             } else {
-				
+
 				$course_data = new stdClass();
 				$course_data->id = $course_to_rollover->courseid;
 				$course_data->idnumber = $course_to_rollover->modcode;
 				$course_data->visible = 0;
-                
+
             }
 			update_course($course_data);
-				
+
 		} catch (Exception $e) {
 		   	error_log('Course update_course Failed' . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
 		   	error_log(json_encode($course_data) . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
@@ -139,12 +134,12 @@ class course_rollover
         }
 		try {
 		    // we reset All courses that in in the course_rollover table
-            reset_course_userdata(json_decode($course_to_rollover->course_reset_data));	
+            reset_course_userdata(json_decode($course_to_rollover->course_reset_data));
 		} catch (Exception $e) {
 			error_log(json_encode($e) . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
             $course->status = 520;
             $state = false;
-			
+
 		}
 		try {
 			error_log('Course enrol_get_plugins delete_instance database' . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
@@ -156,7 +151,7 @@ class course_rollover
                     $plugin->delete_instance($i);
                 }
             }
-			
+
 		} catch (Exception $e) {
 				error_log('Course enrol_get_plugins delete_instance database Failed' . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
 				error_log(json_encode($instances) . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
@@ -164,9 +159,9 @@ class course_rollover
 				error_log(json_encode($e) . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
 	            $course_to_rollover->status = 530;
 	            $state = false;
-			
+
 		}
-        
+
     	try {
 	            // we want to tell the user if the rollover / reset was successful
 	            $eventdata = new stdclass();
@@ -178,7 +173,7 @@ class course_rollover
 				} else{
 					$eventdata->recipient = get_admin();
 				}
-								
+
 	            events_trigger('course_rollover_commpleted', $eventdata);
 				unset($eventdata);
     	} catch (Exception $e) {
@@ -186,15 +181,15 @@ class course_rollover
 				error_log(json_encode($e) . time() ."\n", 3, $CFG->dataroot . "/temp/course_rollover_errors.log");
 	            $course_to_rollover->status = 540;
     	}
-		
+
         $DB->update_record(COURSE_ROLLOVER, $course_to_rollover);
         return $state;
     }
 	/**
 	 * get_form_modcode generates either a select or text element for the activities_settings_form
 	 *
-	 * @param moodle_form $mform 
-	 * @param string $modcode the module code for the course this is a sits module 
+	 * @param moodle_form $mform
+	 * @param string $modcode the module code for the course this is a sits module
 	 * @return void
 	 * @access public
 	 * @static
@@ -218,8 +213,8 @@ class course_rollover
     }
 	/**
 	 * get_course_list returns a list of courses from a external database thats has been setup in the settings.php for this block
-	 * as course id in QMUL edit with a 2 digit year the SQL uses this to filter the result. 
-	 * @param string $courseid 
+	 * as course id in QMUL edit with a 2 digit year the SQL uses this to filter the result.
+	 * @param string $courseid
 	 * @return array of modules found in the MIS database where the id is the key and the short name is the value
 	 * @access public
 	 * @static
@@ -253,13 +248,13 @@ class course_rollover
 	/**
 	 * get_sits_module git a module for the MIS database / external database that has been setup via the setting.php page for this block
 	 *
-	 * @param string $mod_code the module code 
+	 * @param string $mod_code the module code
 	 * @return a module record for the external data source
 	 * @author Gerry G Hall
 	 */
     function get_sits_module($mod_code)
     {
-		
+
         GLOBAL $EXTDB;
         if (empty($mod_code)) {
             return false;
@@ -293,7 +288,7 @@ class course_rollover
 	 * @param string $activities_settings a object that contains the reset values for activities that have been set in the settings.php page of this block
 	 * this is stored in the config_plugins table under the 'course_rolllover' namespace value general_resets
 	 * @param string $form the a object that contains the values submitted by the user
-	 * @param string $schedule  a moodle course that is to be scheduled for a rollover  
+	 * @param string $schedule  a moodle course that is to be scheduled for a rollover
 	 * @return void
 	 * @author Gerry G Hall
 	 */
@@ -310,7 +305,7 @@ class course_rollover
         $savedata->summary = $schedule->summary;
         $savedata->scheduletime = $form->scheduled_date;
         $savedata->modcode = $form->modcode;
-        $form->unenrol_users = explode(',', $form->unenrol_users);		
+        $form->unenrol_users = explode(',', $form->unenrol_users);
 		if($form->modcode == '0') {
 			$savedata->status = 300; // no code
 		}elseif ((int)$form->scheduled_date > (int)$config->cutoff_day) {
@@ -347,7 +342,7 @@ class course_rollover
         $eventdata->component = COURSE_ROLLOVER;
         $eventdata->submitttedtime = userdate(time(), '%A, %d %B %Y');
 		$eventdata->recipient = $USER;
-        
+
         if ($scheduled = course_rollover::scheduled($schedule->id)) {
             $savedata->id = $scheduled->id;
 			//@TODO add a status code to the scheduled course 410 as it has been updated
@@ -373,7 +368,7 @@ class course_rollover
 	/**
 	 * get_schedule_status
 	 *
-	 * @param string $courseid the id of the course you would like the status 
+	 * @param string $courseid the id of the course you would like the status
 	 * @return void
 	 * @author Gerry G Hall
 	 */
@@ -408,11 +403,11 @@ class course_rollover
             return array_search($type, array_flip($reorttypes));
         }
     }
-	
+
     /**
      * get_report_table
-     * 
-     * @param array $params 
+     *
+     * @param array $params
      * @return object that contains a moodle tables and a row count of the report
      * @author Gerry G Hall
      */
@@ -455,39 +450,39 @@ class course_rollover
 				c.`category` NOT IN (SELECT id from {course_categories} where parent = 10)';
 
         $report->table = new html_table();
-        
+
         // Szilard: add column sorting feature for the data table
         if ($params['dir'] == '' || $params['dir'] == 'ASC') $dir = 'DESC'; else $dir = '';
 
         $prmCourse = $params;
         $prmCourse['ord'] = 'shortname';
         $prmCourse['dir'] = $dir;
-        $urlCourse = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmCourse);        
+        $urlCourse = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmCourse);
 
         $prmTime = $params;
         $prmTime['ord'] = 'scheduletime';
         $prmTime['dir'] = $dir;
         $urlTime = new moodle_url('/blocks/course_rollover/schedule_report.php', $prmTime);
 
-        $prmCourse['chr'] = '&#8597;'; //'&#10702'; //       
+        $prmCourse['chr'] = '&#8597;'; //'&#10702'; //
         $prmTime['chr'] =   ' &#8597;'; //'&#10702'; //
 
         switch ($params['ord']) {
             case 'shortname':
                 if ($prmCourse['dir'] == 'DESC') $prmCourse['chr'] = ' &#9650;';
                 else $prmCourse['chr'] = ' &#9660;';
-            break;             
+            break;
             case 'scheduletime':
                 if ($prmTime['dir'] == 'DESC') $prmTime['chr'] = ' &#9650;';
                 else $prmTime['chr'] = ' &#9660;';
-            break; 
+            break;
         }
 
         $report->table->head = array(
             '<a href="' .  $urlCourse . '">Course ' . $prmCourse['chr'] . '</a>',
-            'New Module Code', 
-            'Old Module Code', 
-            '<a href="' .  $urlTime . '">Schedule Time ' . $prmTime['chr'] . '</a>', 
+            'New Module Code',
+            'Old Module Code',
+            '<a href="' .  $urlTime . '">Schedule Time ' . $prmTime['chr'] . '</a>',
             'Scheduled By');
 
         $ordersql = sprintf(" ORDER BY %s %s", $params['ord'], $params['dir']);
@@ -497,13 +492,13 @@ class course_rollover
         $report->table->align = array('left', 'center', 'center', 'center', 'left');
 
         //$DB->set_debug(true);
-        
+
         switch ($type) {
             case 0: // not scheduled
                 $sqlparam = null;
                 // Szilard: add column sorting feature for the data table
                 $report->table->head = array(
-                    'Course Title', 
+                    'Course Title',
                     '<a href="' .  $urlCourse . '">Course Short Code ' . $prmCourse['chr'] . '</a>',
                     'idNumber'
                 );
@@ -554,10 +549,10 @@ class course_rollover
         return $report;
     }
 	/**
-	 * validate_mod_code 
+	 * validate_mod_code
 	 * @TODO this code is not currently being used
-	 * @param string $current 
-	 * @param string $new 
+	 * @param string $current
+	 * @param string $new
 	 * @return void
 	 * @author Gerry G Hall
 	 */
@@ -608,7 +603,7 @@ class course_rollover
 	{
 		GLOBAL $DB;
 
-        $a = new stdClass();        
+        $a = new stdClass();
 		$a->coursename = $DB->get_field('course', 'fullname', array('id'=> $obj->schedule->courseid), IGNORE_MISSING);
 	    $a->username = fullname($obj->recipient);
 	    $a->userusername = $obj->recipient->username;
@@ -624,10 +619,10 @@ class course_rollover
 	    $eventdata->notification = 1;
 	    $eventdata->userfrom = get_admin();
 	    $eventdata->userto = $obj->recipient;
-	    
+
 		$eventdata->subject = get_string('emailconfirmsubject_' . $obj->action, COURSE_ROLLOVER, $a);
 	    $eventdata->fullmessage = get_string('emailconfirmbody_' . $obj->action, COURSE_ROLLOVER, $a);
-	
+
 	    $eventdata->fullmessageformat = FORMAT_PLAIN;
 	    $eventdata->fullmessagehtml = '';
 
